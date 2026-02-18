@@ -1,0 +1,1 @@
+[![Trying out caching for go](https://github.com/eulerbutcooler/practice-bckend/actions/workflows/cachingwf.yml/badge.svg)](https://github.com/eulerbutcooler/practice-bckend/actions/workflows/cachingwf.yml)
