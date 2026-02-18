@@ -6,7 +6,7 @@ import (
 )
 
 func aboutHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Welcome to the about page"))
+	w.Write([]byte("Welcome to the about page maalik"))
 	fmt.Println("Welcome to the about page")
 }
 func main() {
