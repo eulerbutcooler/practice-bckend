@@ -1,0 +1,49 @@
+name: Trying out caching for go
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: "1.25.6"
+          cache: false
+      - name: Cache go modules
+        id: cache-go-modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Check cache status
+        run: |
+          if [ "${{ steps.cache-go-modules.outputs.cache-hit }}" = "true" ]; then
+            echo "Cache hit! Go modules were restored from cache."
+          else
+            echo "Cache miss. Go modules will be downloaded and cached for future runs."
+          fi
+      - name: Download dependencies
+        if: steps.cache-go-modules.outputs.cache-hit != 'true'
+        run: go mod download
+
+      - name: Verify dependencies
+        run: go mod verify
+
+      - name: Build
+        run: go build -v ./...
+
+      - name: Test run backend
+        run: |
+          go run main.go &
+          SERVER_PID=$!
+          sleep 3
+          curl -f http://localhost:1234/ || exit 1
+          kill $SERVER_PID
+        timeout-minutes: 1
